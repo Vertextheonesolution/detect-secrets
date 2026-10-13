@@ -1,4 +1,5 @@
 import os
+import re
 from types import SimpleNamespace
 
 import pytest
@@ -58,5 +59,7 @@ def test_print_context_limits_long_lines_but_preserves_secret(monkeypatch):
     )
     io.print_context(context)
     assert secret_value in outputs[0]
-    assert len(snippet.lines[0]) <= 68
-    assert len(snippet.target_line) < 90
+    # Line numbers and ANSI highlighting should not count as visible width.
+    plain = lambda text: re.sub(r'\x1b\[[0-9;]*m', '', text)
+    assert len(plain(snippet.lines[0])) <= 70
+    assert len(plain(snippet.target_line)) <= 70
